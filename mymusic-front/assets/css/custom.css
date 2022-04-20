@@ -1,0 +1,26 @@
+.bottom{
+    
+    flex-shrink: 0;
+    position: fixed;
+    height: 140px;
+    background-color: black;
+    bottom: 0;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    color: white;
+    flex-direction: column;
+    width: 100%;
+
+}
+.playerIcon{
+    margin-top: 15px;
+}
+.playerIcon i{ 
+    cursor: pointer;
+}
+
+#musicPlayer{
+    width: 80vw;
+    
+}

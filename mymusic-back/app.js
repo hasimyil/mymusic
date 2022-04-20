@@ -3,13 +3,19 @@ const app = express()
 const port = 3000
 const cors = require('cors');
 app.use(cors());
+require("dotenv").config();
 app.use(express.json());
+
 const userRouter = require('./routes/user');
+const musicRouter = require('./routes/music');
+const playlistRouter = require('./routes/playlist');
 
 
 
 
 app.use('/user', userRouter);
+app.use('/music', musicRouter);
+app.use('/playlist', playlistRouter);
 
 app.use((req, res, next) => {
     res.status(404).json({ error: req.url + ' API not supported!' });

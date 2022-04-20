@@ -51,7 +51,7 @@ module.exports = class Book {
 
     static login(email,password) {
         const index = users.findIndex(p => p.email === email);
-        console.log(index,email)
+        
         if (index > -1) {
            if(users[index].password == password){
                

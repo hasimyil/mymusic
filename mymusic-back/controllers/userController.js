@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const { genericResponse } = require('../models/genericResponseModel');
+const jwt = require('jsonwebtoken');
 
 exports.getUsers = (req, res, next) => {
     res.status(200).json(fetchAll);
@@ -33,12 +34,15 @@ exports.deleteById = (req, res, next) => {
 
 exports.userLogin = async (req, res) => {
     const { email, password } = req.body
+    
     if(!email || !password)return  res.json(genericResponse(false, 'Plase fill all creadintials', -1))
     const user = User.login(email, password)
     if (!user) return res.json(genericResponse(false, 'User not found', -1))
 
     if(password == user.password){
-      return  res.json(genericResponse(true, 'success', 200,user,"tokennn"))
+       
+       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' })
+      return  res.json(genericResponse(true, 'success', 200,user,token))
     }
     
 
