@@ -19,6 +19,15 @@ exports.getSongByUserId = (req, res, next) => {
     
 }
 
+exports.deleteFromList = (req, res, next) => {
+    const song = req.body;
+    console.log(song.id)
+    const songs = Playlist.deleteById(song.id)
+    return  res.status(200).json(genericResponse(true, `${songs.length} music found`,200,songs));
+    
+    
+}
+
 
 exports.getSongs = (req, res, next) => {
     const songs = Playlist.fetchAll()

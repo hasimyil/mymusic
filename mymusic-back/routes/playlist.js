@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/', isAuth, playlistController.save);
 router.get('/', isAuth ,playlistController.getSongByUserId);
+router.put('/', isAuth ,playlistController.deleteFromList);
 
 
 module.exports = router;

@@ -18,6 +18,7 @@
 }
 .playerIcon i{ 
     cursor: pointer;
+    margin-left: 15px;
 }
 
 #musicPlayer{

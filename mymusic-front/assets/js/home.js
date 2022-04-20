@@ -3,19 +3,110 @@
 const token = sessionStorage.getItem('token')
 let count = 1;
 let playlistCount = 1;
-
+let m = ""
+var audio = new Audio();
+let songElement = new Audio()
+let masterPlay = document.getElementById('masterPlay');
+let myProgresBar = document.getElementById('musicPlayer');
+let selectedSong = "";
+let random = false;
+let repeat = false;
+let orderSong = false;
 window.onload = function () {
     getSongs()
     getPlayList()
 
-    document.addEventListener('click', function (e) {
-        if (e.target && e.target.id == 'addBtn') {
-            //do something
-           
-            addSongToList(e.target.dataset.id)
-        }
-    });
+
+
+
+
+
 }
+
+
+async function play(songId) {
+    myHeaders = new Headers({
+        'Authorization': 'Token ' + token,
+        'Content-Type': 'application/json'
+    });
+    return await fetch('http://localhost:3000/music/play', {
+        headers: myHeaders,
+        method: 'POST',
+        body: JSON.stringify({ id: songId })
+    }).then(response => response.json().then((data) => {
+        m = data.fileContent
+        return data;
+    }))
+
+
+
+}
+
+function nextSong() {
+    let nextSongId=''
+    let songName =''
+    let singer=''
+    if(selectedSong.parentElement.parentElement.nextElementSibling == null){
+    const tds = document.getElementById("myPlayList").getElementsByTagName("tr")
+    selectedSong = tds[0]
+    nextSongId = selectedSong.nextElementSibling.children[4].children[0]
+    selectedSong = nextSongId
+
+    songName = selectedSong.parentElement.parentElement.children[1].innerHTML;
+    singer = selectedSong.parentElement.parentElement.children[3].innerHTML;
+    selectedSong.parentElement.parentElement.style.backgroundColor = 'gray'
+    }else{
+    nextSongId = selectedSong.parentElement.parentElement.nextElementSibling.children[4].children[0]
+    selectedSong.parentElement.parentElement.nextElementSibling.style.backgroundColor = 'gray'
+    songName = selectedSong.parentElement.parentElement.nextElementSibling.children[1].innerHTML;
+    singer = selectedSong.parentElement.parentElement.nextElementSibling.children[3].innerHTML;
+    selectedSong.parentElement.parentElement.style.backgroundColor = ''
+    }
+
+    
+    
+    
+    document.getElementById('songName').innerHTML = 'Playing ' + songName + ' By ' + singer
+    play(nextSongId.dataset.id)
+
+    setTimeout((myTimer) => {
+
+        var audioSrc = 'data:audio/mp3;base64,' + m;
+        songElement.src = audioSrc;
+        songElement.load();
+        songElement.play();
+        masterPlay.classList.remove('fa-play-circle');
+        masterPlay.classList.add('fa-pause-circle');
+
+
+    }, 2000);
+    selectedSong = nextSongId
+}
+
+
+function previousSong() {
+    const nextSongId = selectedSong.parentElement.parentElement.previousElementSibling.children[4].children[0]
+    const songName = selectedSong.parentElement.parentElement.previousElementSibling.children[1].innerHTML;
+    const singer = selectedSong.parentElement.parentElement.previousElementSibling.children[3].innerHTML;
+    selectedSong.parentElement.parentElement.style.backgroundColor = ''
+    selectedSong.parentElement.parentElement.previousElementSibling.style.backgroundColor = 'gray'
+    document.getElementById('songName').innerHTML = 'Playing ' + songName + ' By ' + singer
+    play(nextSongId.dataset.id)
+
+    setTimeout((myTimer) => {
+
+        var audioSrc = 'data:audio/mp3;base64,' + m;
+        songElement.src = audioSrc;
+        songElement.load();
+        songElement.play();
+        masterPlay.classList.remove('fa-play-circle');
+        masterPlay.classList.add('fa-pause-circle');
+
+
+    }, 2000);
+    selectedSong = nextSongId
+}
+
 
 function renderMyMusicList(prod, number) {
     const tbl = document.getElementById("myMusicList");
@@ -36,6 +127,11 @@ function renderMyMusicList(prod, number) {
     </button>
    
   </td>`;
+    cell5.querySelector('.addBtn').addEventListener('click', function () {
+
+        addSongToList(this.dataset.id)
+    })
+
 }
 
 function renderMyPlayList(prod) {
@@ -46,17 +142,58 @@ function renderMyPlayList(prod) {
     const cell3 = row.insertCell(2);
     const cell4 = row.insertCell(3);
     const cell5 = row.insertCell(4);
+    const cell6 = row.insertCell(5);
     cell1.innerHTML = playlistCount;
     cell2.innerHTML = prod.name;
     cell3.innerHTML = prod.title;
     cell4.innerHTML = prod.singer;
     cell5.innerHTML = `<td class="text-right">
-    <button type="button"  rel="tooltip" id="addBtn" data-id="${prod.id}"  class="btn btn-info btn-icon btn-sm addBtn btn-simple" data-original-title="" title="">
-      <i class="ni ni-fat-add pt-1"></i>
+    <button type="button"  rel="tooltip" id="playBtn" data-id="${prod.id}"  class="btn btn-info btn-icon btn-sm playBtn btn-simple" data-original-title="" title="">
+      <i class="fa fa-play-circle pt-1"></i>
     </button>
-   
+    
   </td>`;
-  playlistCount++
+    cell6.innerHTML = `<td class="text-right">
+  <button type="button"  rel="tooltip" id="removeBtn" data-id="${prod.id}"  class="btn btn-info btn-icon btn-sm removeBtn btn-simple" data-original-title="" title="">
+  <i class="fa fa-minus-circle pt-1"></i>
+</button>
+ 
+</td>`
+
+    playlistCount++
+
+
+    cell6.querySelector('.removeBtn').addEventListener('click', function () {
+        removeFromPlayList(this.dataset.id)
+    })
+    document.querySelectorAll('.playBtn').forEach(btn => {
+        btn.addEventListener("click", function () {
+            const songName = this.parentElement.parentElement.children[1].innerHTML;
+            const singer = this.parentElement.parentElement.children[3].innerHTML;
+            //selectedSong.parentElement.parentElement.style.backgroundColor=''
+            // selectedSong.parentElement.parentElement.previousElementSibling.style.backgroundColor='gray'
+            document.getElementById('songName').innerHTML = 'Playing ' + songName + ' By ' + singer
+            play(this.dataset.id)
+            console.log(this.dataset.id)
+            setTimeout((myTimer) => {
+                if (songElement.paused || songElement.currentTime <= 0) {
+
+                    var audioSrc = 'data:audio/mp3;base64,' + m;
+                    songElement.src = audioSrc;
+                    songElement.load();
+                    songElement.play();
+                    masterPlay.classList.remove('fa-play-circle');
+                    masterPlay.classList.add('fa-pause-circle');
+                } else {
+                    songElement.pause();
+                    masterPlay.classList.remove('fa-pause-circle');
+                    masterPlay.classList.add('fa-play-circle');
+
+                }
+            }, 2000);
+            selectedSong = this
+        });
+    });
 }
 
 async function getSongs() {
@@ -76,14 +213,14 @@ async function getSongs() {
         count++;
     });
 }
-function clear(){
+function clear() {
     var tableObj = document.getElementsByTagName("myPlayList")[0];
     var coloumns = tableObj.getElementsByTagName("tr");
-   console.log(coloumns)
+    console.log(coloumns)
 }
 
 async function getPlayList() {
-    
+
     myHeaders = new Headers({
         'Authorization': 'Token ' + token,
         'Content-Type': 'application/json'
@@ -118,18 +255,184 @@ async function addSongToList(songId) {
     ).then(response => response.json());
     console.log(products)
     if (products.code == 200) {
-       
+
         renderMyPlayList(products.data)
-        
+
+    }
+
+
+}
+async function removeFromPlayList(songId) {
+    myHeaders = new Headers({
+        'Authorization': 'Token ' + token,
+        'Content-Type': 'application/json'
+    });
+    let obj = {};
+    obj.id = songId
+    console.log(JSON.stringify(obj))
+    let products = await fetch('http://localhost:3000/playlist/', {
+        headers: myHeaders,
+        body: JSON.stringify(obj),
+        method: 'PUT',
+
+    },
+
+    ).then(response => response.json());
+    console.log(products)
+    if (products.code == 200) {
+        console.log(products.code)
+        location.reload()
+
     }
 
 
 }
 
-function playSong(){
-    let masterPlay= document.getElementById('masterPlay')
-    document.addEventListener('time')
-    let ss = new Audio()
+masterPlay.addEventListener('click', () => {
+    if (songElement.paused || songElement.currentTime <= 0) {
+
+        var audioSrc = 'data:audio/mp3;base64,' + m;
+        songElement.src = audioSrc;
+        songElement.load();
+        songElement.play();
+        masterPlay.classList.remove('fa-play-circle');
+        masterPlay.classList.add('fa-pause-circle');
+    } else {
+        songElement.pause();
+        masterPlay.classList.remove('fa-pause-circle');
+        masterPlay.classList.add('fa-play-circle');
+
+    }
+})
+function getRandomArbitrary(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
+songElement.addEventListener('timeupdate', () => {
+    progress = parseInt((songElement.currentTime / songElement.duration) * 100)
+    myProgresBar.value = progress;
+
+    if (progress == 100) {
+        if (random) {
+            const tds = document.getElementById("myPlayList").getElementsByTagName("tr")
+
+            const rand = getRandomArbitrary(1, tds.length);
+            tds[rand].style.backgroundColor = "gray";
+            play(tds[rand].children[4].getElementsByClassName('playBtn')[0].dataset.id)
+            setTimeout((myTimer) => {
+                if (songElement.paused || songElement.currentTime <= 0) {
+    
+                    var audioSrc = 'data:audio/mp3;base64,' + m;
+                    songElement.src = audioSrc;
+                    songElement.load();
+                    songElement.play();
+                    masterPlay.classList.remove('fa-play-circle');
+                    masterPlay.classList.add('fa-pause-circle');
+                } else {
+                    songElement.pause();
+                    masterPlay.classList.remove('fa-pause-circle');
+                    masterPlay.classList.add('fa-play-circle');
+    
+                }
+            }, 2000);
+            selectedSong = this
+           
+        }else if(orderSong){
+            console.log("test")
+            nextSong()
+        }else if(repeat){
+            songElement.play();
+        }
+       
+
+    }
+})
+
+myProgresBar.addEventListener('change', () => {
+    songElement.currentTime = myProgresBar.value * songElement.duration / 100;
+})
+
+document.getElementById('previous').addEventListener('click', () => {
+    previousSong()
+})
+
+document.getElementById('nextSong').addEventListener('click', () => {
+    nextSong()
+})
+
+document.getElementById('randomSong').addEventListener('click', function () {
+    random = !random;
+    if (random) {
+        const rpt = document.getElementById('repeatSong')
+        const ord = document.getElementById('orderListSong')
+        rpt.classList.remove('text-primary')
+        ord.classList.remove('text-primary')
+        this.classList.add('text-primary')
+        repeat = false
+        orderSong = false
+    } else {
+        this.classList.remove('text-primary')
+    }
+})
+document.getElementById('repeatSong').addEventListener('click', function () {
+    repeat = !repeat;
+    if (repeat) {
+        const rnd = document.getElementById('randomSong')
+        const ord = document.getElementById('orderListSong')
+        rnd.classList.remove('text-primary')
+        ord.classList.remove('text-primary')
+        random = false
+        orderSong = false
+
+        this.classList.add('text-primary')
+    } else {
+        this.classList.remove('text-primary')
+    }
+})
+
+document.getElementById('orderListSong').addEventListener('click', function () {
+    orderSong = !orderSong;
+    if (orderSong) {
+        const rnd = document.getElementById('randomSong')
+        const ord = document.getElementById('repeatSong')
+        rnd.classList.remove('text-primary')
+        ord.classList.remove('text-primary')
+        repeat = false
+        random = false
+
+        this.classList.add('text-primary')
+    } else {
+        this.classList.remove('text-primary')
+    }
+})
+
+
+document.getElementById('searchBtn').addEventListener('click', function () {
+    const searchText = document.getElementById('searchInput').value
+    searchByText();
+    
+})
+
+function searchByText(text){
+    myHeaders = new Headers({
+        'Authorization': 'Token ' + token,
+        'Content-Type': 'application/x-www-form-urlencoded'
+    });
+    let products = await fetch('http://localhost:3000/music/searchText?='+text, {
+        headers: myHeaders,
+        method: 'GET'
+    }).then(response => response.json());
+    console.log(products)
+
+    products.data.forEach(prod => {
+
+        renderMyMusicList(prod, count)
+        count++;
+    });
+}
+
+
+
+
+
 
 

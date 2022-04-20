@@ -1,7 +1,7 @@
 const Song = require("../models/music");
 const { genericResponse } = require('../models/genericResponseModel');
 const { fetchAll } = require("../models/music");
-
+var fs = require('fs');
 
 
 exports.getSongs = (req, res, next) => {
@@ -46,6 +46,28 @@ exports.addToPlaylist = (req, res, next) => {
     const savedSong= new Song(null, song.name, song.title,song.singer,mp3).save();
     return res.json(genericResponse(true, 'Music Added Successfully',200,savedSong))
 }
+
+exports.play = (req, res, next) => {
+    
+  
+    
+    const song = req.body;
+    console.log(song.id)
+    const findSong = Song.findById(song.id)
+    var returnData = {};
+    //const file = findSong.mp3.path;
+    fs.readFile(findSong.mp3.path, function(err, file){
+        var base64File = new Buffer(file, 'binary').toString('base64');
+         console.log(file)
+        returnData.fileContent = base64File;
+
+       return res.json(returnData);
+    });
+   
+}
+
+
+
 
 
 

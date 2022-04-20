@@ -64,8 +64,9 @@ module.exports = class Song {
 
     static deleteById(id) {
         const index = playlist.findIndex(p => p.id === id);
+        console.log('Found INDEX', index)
         if (index > -1) {
-            playlist = playlist.filter(p => p.id !== id);
+           return playlist = playlist.filter(p => p.id !== id);
         } else {
             throw new Error('NOT Found');
         }
