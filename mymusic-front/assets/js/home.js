@@ -314,9 +314,9 @@ async function removeFromPlayList(songId) {
 masterPlay.addEventListener('click', () => {
     if (songElement.paused || songElement.currentTime <= 0) {
 
-        var audioSrc = 'data:audio/mp3;base64,' + m;
-        songElement.src = audioSrc;
-        songElement.load();
+        // var audioSrc = 'data:audio/mp3;base64,' + m;
+        // songElement.src = audioSrc;
+        // songElement.load();
         songElement.play();
         masterPlay.classList.remove('fa-play-circle');
         masterPlay.classList.add('fa-pause-circle');

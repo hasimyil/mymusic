@@ -1,12 +1,13 @@
 .bottom{
     
     flex-shrink: 0;
-    position: fixed;
+    position: static;
     height: 140px;
     background-color: black;
     bottom: 0;
     align-items: center;
-    display: flex;
+    /* display: flex; */
+    text-align: center;
     justify-content: center;
     color: white;
     flex-direction: column;
