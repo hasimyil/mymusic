@@ -40,12 +40,18 @@ async function loginCall(form) {
         const a =  sessionStorage.getItem("token")
         location.href = 'home.html';
     }else{
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Something went wrong!',
+        if(result.message == "Plase fill all creadintials"){
+            document.getElementById('loginError').innerHTML="Please fill all creadintials!"
+        }else{
+            document.getElementById('loginError').innerHTML="Username or Password is Wrong!"
+        }
+       
+        // Swal.fire({
+        //     icon: 'error',
+        //     title: 'Oops...',
+        //     text: 'Something went wrong!',
            
-          })
+        //   })
     }
  
 }
