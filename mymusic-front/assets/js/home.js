@@ -468,11 +468,11 @@ async function searchByText(text){
 
 function clearTable(){
     const tds = document.getElementById("myMusicList").getElementsByTagName("tr")
-  
+    const len =  tds.length-1;
     console.log(tds)
-    for(let i=0 ; i<=tds.length;i++){
+    for(let i=1 ; i<=len;i++){
         console.log(i)
-        document.getElementById("myMusicList").getElementsByTagName("tr")[1].remove()
+        tds[1].remove()
        
     }
     count=1
