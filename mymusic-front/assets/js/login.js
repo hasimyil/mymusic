@@ -36,6 +36,7 @@ async function loginCall(form) {
     // renderBook(result);
     if(result.code == 200){
         sessionStorage.setItem("token", result.token);
+        sessionStorage.setItem("user", result.data.first_name+" "+result.data.last_name);
         const a =  sessionStorage.getItem("token")
         location.href = 'home.html';
     }else{

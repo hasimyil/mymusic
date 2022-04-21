@@ -16,8 +16,17 @@ window.onload = function () {
     getSongs()
     getPlayList()
 
-
-
+    const userName=  sessionStorage.getItem("user")
+    document.getElementById('username').innerHTML=userName
+    console.log(userName)
+    if(token == null){
+        window.location.href = "./index.html";
+    }
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+    
+        sessionStorage.clear()
+        window.location.href = "./index.html";
+    })
 
 
 
@@ -46,7 +55,10 @@ function nextSong() {
     let nextSongId=''
     let songName =''
     let singer=''
+    
     if(selectedSong.parentElement.parentElement.nextElementSibling == null){
+    selectedSong.parentElement.parentElement.style.backgroundColor = ''
+    
     const tds = document.getElementById("myPlayList").getElementsByTagName("tr")
     selectedSong = tds[0]
     nextSongId = selectedSong.nextElementSibling.children[4].children[0]
@@ -55,6 +67,7 @@ function nextSong() {
     songName = selectedSong.parentElement.parentElement.children[1].innerHTML;
     singer = selectedSong.parentElement.parentElement.children[3].innerHTML;
     selectedSong.parentElement.parentElement.style.backgroundColor = 'gray'
+    
     }else{
     nextSongId = selectedSong.parentElement.parentElement.nextElementSibling.children[4].children[0]
     selectedSong.parentElement.parentElement.nextElementSibling.style.backgroundColor = 'gray'
@@ -117,17 +130,19 @@ function renderMyMusicList(prod, number) {
     const cell3 = row.insertCell(2);
     const cell4 = row.insertCell(3);
     const cell5 = row.insertCell(4);
+    const cell6 = row.insertCell(5);
     cell1.innerHTML = count;
     cell2.innerHTML = prod.name;
     cell3.innerHTML = prod.title;
     cell4.innerHTML = prod.singer;
-    cell5.innerHTML = `<td class="text-right">
+    cell5.innerHTML = prod.relaseDate;
+    cell6.innerHTML = `<td class="text-right">
     <button type="button"  rel="tooltip" id="addBtn" data-id="${prod.id}"  class="btn btn-info btn-icon btn-sm addBtn btn-simple" data-original-title="" title="">
       <i class="ni ni-fat-add pt-1"></i>
     </button>
    
   </td>`;
-    cell5.querySelector('.addBtn').addEventListener('click', function () {
+    cell6.querySelector('.addBtn').addEventListener('click', function () {
 
         addSongToList(this.dataset.id)
     })
@@ -213,11 +228,7 @@ async function getSongs() {
         count++;
     });
 }
-function clear() {
-    var tableObj = document.getElementsByTagName("myPlayList")[0];
-    var coloumns = tableObj.getElementsByTagName("tr");
-    console.log(coloumns)
-}
+
 
 async function getPlayList() {
 
@@ -229,12 +240,23 @@ async function getPlayList() {
         headers: myHeaders,
         method: 'GET'
     }).then(response => response.json());
-    console.log(products)
-
+    console.log("playlist",products)
+    
     products.data.forEach(prod => {
 
         renderMyPlayList(prod)
     });
+    myPlaylistEmtyCheck()
+}
+
+function myPlaylistEmtyCheck(){
+    const tds = document.getElementById("myPlayList").getElementsByTagName("tr")
+    console.log(tds.length)
+    if(tds.length <= 1){
+        document.getElementById('noSongsInfo').innerHTML="No Songs in Your Playlist"
+    }else{
+        document.getElementById('noSongsInfo').innerHTML=""
+    }
 }
 
 async function addSongToList(songId) {
@@ -259,6 +281,7 @@ async function addSongToList(songId) {
         renderMyPlayList(products.data)
 
     }
+    myPlaylistEmtyCheck()
 
 
 }
@@ -284,7 +307,7 @@ async function removeFromPlayList(songId) {
         location.reload()
 
     }
-
+    myPlaylistEmtyCheck()
 
 }
 
@@ -307,7 +330,7 @@ masterPlay.addEventListener('click', () => {
 function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
-songElement.addEventListener('timeupdate', () => {
+songElement.addEventListener('timeupdate', function () {
     progress = parseInt((songElement.currentTime / songElement.duration) * 100)
     myProgresBar.value = progress;
 
@@ -316,7 +339,12 @@ songElement.addEventListener('timeupdate', () => {
             const tds = document.getElementById("myPlayList").getElementsByTagName("tr")
 
             const rand = getRandomArbitrary(1, tds.length);
+            selectedSong.parentElement.parentElement.style.backgroundColor = ''
             tds[rand].style.backgroundColor = "gray";
+            selectedSong = tds[rand].children[4].getElementsByClassName('playBtn')[0]
+            const songName = selectedSong.parentElement.parentElement.children[1].innerHTML;
+            const singer = selectedSong.parentElement.parentElement.children[3].innerHTML;
+            document.getElementById('songName').innerHTML = 'Playing ' + songName + ' By ' + singer
             play(tds[rand].children[4].getElementsByClassName('playBtn')[0].dataset.id)
             setTimeout((myTimer) => {
                 if (songElement.paused || songElement.currentTime <= 0) {
@@ -334,7 +362,6 @@ songElement.addEventListener('timeupdate', () => {
     
                 }
             }, 2000);
-            selectedSong = this
            
         }else if(orderSong){
             console.log("test")
@@ -364,6 +391,7 @@ document.getElementById('randomSong').addEventListener('click', function () {
     if (random) {
         const rpt = document.getElementById('repeatSong')
         const ord = document.getElementById('orderListSong')
+       
         rpt.classList.remove('text-primary')
         ord.classList.remove('text-primary')
         this.classList.add('text-primary')
@@ -408,26 +436,46 @@ document.getElementById('orderListSong').addEventListener('click', function () {
 
 document.getElementById('searchBtn').addEventListener('click', function () {
     const searchText = document.getElementById('searchInput').value
-    searchByText();
+    clearTable()
+    searchByText(searchText);
     
 })
 
-function searchByText(text){
+
+async function searchByText(text){
+    console.log(text)
+    document.getElementById("resultText").innerHTML = `Results of '${text}'`;
     myHeaders = new Headers({
         'Authorization': 'Token ' + token,
         'Content-Type': 'application/x-www-form-urlencoded'
     });
-    let products = await fetch('http://localhost:3000/music/searchText?='+text, {
+    let products = await fetch('http://localhost:3000/music/search?searchText='+text, {
         headers: myHeaders,
         method: 'GET'
     }).then(response => response.json());
     console.log(products)
+     if(products.success == true){
+         console.log(products.data)
+         products.data.forEach(prod => {
 
-    products.data.forEach(prod => {
+            renderMyMusicList(prod, count)
+            count++;
+        });
+     }
 
-        renderMyMusicList(prod, count)
-        count++;
-    });
+    
+}
+
+function clearTable(){
+    const tds = document.getElementById("myMusicList").getElementsByTagName("tr")
+  
+    console.log(tds)
+    for(let i=0 ; i<=tds.length;i++){
+        console.log(i)
+        document.getElementById("myMusicList").getElementsByTagName("tr")[1].remove()
+       
+    }
+    count=1
 }
 
 

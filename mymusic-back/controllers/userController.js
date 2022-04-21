@@ -49,4 +49,21 @@ exports.userLogin = async (req, res) => {
 
     res.json(genericResponse(true, 'Successfully logged in!', 200))
 }
+exports.userLogout = async (req, res) => {
+    const { email, password } = req.body
+    
+    
+    const user = User.login(email, password)
+    if (!user) return res.json(genericResponse(false, 'User not found', -1))
+
+    if(password == user.password){
+       
+       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' })
+      return  res.json(genericResponse(true, 'success', 200,user,token))
+    }
+    
+
+
+    res.json(genericResponse(true, 'Successfully logged in!', 200))
+}
 

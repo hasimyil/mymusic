@@ -6,7 +6,7 @@ exports.save = (req, res, next) => {
     const song = req.body;
     console.log(song.id)
     const findSong = Song.findById(song.id)
-    const savedSong= new Playlist(findSong.id, findSong.name, findSong.title,findSong.singer,findSong.mp3,req.user.id).save();
+    const savedSong= new Playlist(findSong.id, findSong.name, findSong.title,findSong.singer,findSong.mp3,req.user.id,findSong.relaseDate).save();
     return res.json(genericResponse(true, 'Music Added Successfully',200,savedSong))
 }
 

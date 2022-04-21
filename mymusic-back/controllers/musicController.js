@@ -24,7 +24,7 @@ exports.save = (req, res, next) => {
     const user= req.user;
     console.log(req.body.title)
     const mp3= req.file
-    const savedSong= new Song(null, song.name, song.title,song.singer,mp3,req.user.id).save();
+    const savedSong= new Song(null, song.name, song.title,song.singer,mp3,song.relaseDate).save();
     return res.json(genericResponse(true, 'Music Added Successfully',200,savedSong))
 }
 
@@ -43,8 +43,19 @@ exports.addToPlaylist = (req, res, next) => {
     const song = req.body;
     console.log(req.body.title)
     const mp3= req.file
-    const savedSong= new Song(null, song.name, song.title,song.singer,mp3).save();
+    const savedSong= new Song(null, song.name, song.title,song.singer,mp3,song.relaseDate).save();
     return res.json(genericResponse(true, 'Music Added Successfully',200,savedSong))
+}
+
+exports.searchByText = (req, res, next) => {
+    const song = req.query;
+    console.log(song.searchText)
+    const found= Song.searchByText(song.searchText)
+    
+    if(found.length<1){
+        return res.json(genericResponse(false, `Music Not Found`,200))
+    }
+    return res.json(genericResponse(true, `${song.length} music found`,200,found))
 }
 
 exports.play = (req, res, next) => {

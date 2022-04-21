@@ -2,12 +2,13 @@ let songs = [];
 
 module.exports = class song {
 
-    constructor(id, name, title,singer, mp3) {
+    constructor(id, name, title,singer, mp3,relaseDate) {
         this.id = id;
         this.name = name;
         this.title = title;
         this.singer = singer;
         this.mp3 = mp3;
+        this.relaseDate = relaseDate;
        
     }
 
@@ -58,6 +59,12 @@ module.exports = class song {
             return songs[index];
         }
     }
+    static searchByText(text) {
+        console.log(text)
+        const index = songs.filter(p => p.name.includes(text));
+        return index;
+    }
+
 
    
 

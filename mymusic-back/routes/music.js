@@ -18,6 +18,7 @@ const upload = multer({ storage })
 router.post('/', isAuth,upload.single('file'), musicController.save);
 router.get('/', isAuth ,musicController.getSongs);
 router.post('/play',musicController.play);
+router.get('/search',musicController.searchByText);
 
 
 module.exports = router;

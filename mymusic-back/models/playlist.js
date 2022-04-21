@@ -2,13 +2,14 @@ let playlist = [];
 
 module.exports = class Song {
 
-    constructor(id, name, title,singer, mp3,userId) {
+    constructor(id, name, title,singer, mp3,userId,relaseDate) {
         this.id = id;
         this.name = name;
         this.title = title;
         this.singer = singer;
         this.mp3 = mp3;
         this.userId=userId;
+        this.relaseDate=relaseDate;
        
     }
 
